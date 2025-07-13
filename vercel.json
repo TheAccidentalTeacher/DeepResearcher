@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "UNSPLASH_ACCESS_KEY": "@unsplash_access_key",
+    "PEXELS_API_KEY": "@pexels_api_key",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "NEXTAUTH_URL": "@nextauth_url"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "@database_url"
+    }
+  }
+}
