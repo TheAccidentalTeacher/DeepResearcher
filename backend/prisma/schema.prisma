@@ -1,0 +1,320 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String?
+  image             String?
+  emailVerified     DateTime?
+  password          String?
+  role              UserRole           @default(USER)
+  isActive          Boolean            @default(true)
+  preferences       Json?
+  lastLoginAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  researchSessions  ResearchSession[]
+  notifications     Notification[]
+  apiKeys           ApiKey[]
+  accounts          Account[]
+  sessions          Session[]
+  
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model ResearchSession {
+  id          String          @id @default(cuid())
+  userId      String
+  title       String
+  query       String          @db.Text
+  status      ResearchStatus  @default(PENDING)
+  options     Json            // ResearchOptions
+  results     Json?           // ResearchResults
+  progress    Int             @default(0)
+  currentStep String?
+  estimatedTimeRemaining Int?
+  error       String?         @db.Text
+  priority    Int             @default(5)
+  tags        String[]        @default([])
+  isPublic    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  // Relations
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sources     Source[]
+  citations   Citation[]
+  insights    Insight[]
+  jobs        BackgroundJob[]
+  
+  @@map("research_sessions")
+}
+
+model Source {
+  id              String     @id @default(cuid())
+  sessionId       String
+  title           String
+  authors         String[]   @default([])
+  url             String
+  type            SourceType
+  publishedAt     DateTime?
+  abstract        String?    @db.Text
+  content         String?    @db.Text
+  relevanceScore  Float      @default(0.0)
+  credibilityScore Float     @default(0.0)
+  doi             String?
+  journal         String?
+  venue           String?
+  tags            String[]   @default([])
+  metadata        Json?
+  fetchedAt       DateTime   @default(now())
+  
+  // Relations
+  session         ResearchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  citations       Citation[]
+  
+  @@map("sources")
+}
+
+model Citation {
+  id        String   @id @default(cuid())
+  sessionId String
+  sourceId  String
+  text      String   @db.Text
+  context   String   @db.Text
+  style     String   // Citation style (APA, MLA, etc.)
+  inline    String   @db.Text
+  page      Int?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  session   ResearchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  source    Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  
+  @@map("citations")
+}
+
+model Insight {
+  id          String      @id @default(cuid())
+  sessionId   String
+  type        InsightType
+  title       String
+  description String      @db.Text
+  evidence    String[]    @default([])
+  confidence  Float       @default(0.0)
+  impact      ImpactLevel @default(MEDIUM)
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  
+  // Relations
+  session     ResearchSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("insights")
+}
+
+model BackgroundJob {
+  id          String    @id @default(cuid())
+  sessionId   String?
+  type        JobType
+  status      JobStatus @default(WAITING)
+  progress    Int       @default(0)
+  data        Json?
+  result      Json?
+  error       String?   @db.Text
+  priority    Int       @default(5)
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  delay       Int?
+  nextRunAt   DateTime?
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  failedAt    DateTime?
+  
+  // Relations
+  session     ResearchSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("background_jobs")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  data      Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+  
+  // Relations
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notifications")
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  key         String    @unique
+  permissions String[]  @default([])
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("api_keys")
+}
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  count     Int      @default(0)
+  resetTime DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("rate_limits")
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     LogLevel
+  message   String   @db.Text
+  metadata  Json?
+  userId    String?
+  sessionId String?
+  createdAt DateTime @default(now())
+  
+  @@map("system_logs")
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+  RESEARCHER
+}
+
+enum ResearchStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum SourceType {
+  ACADEMIC
+  NEWS
+  WEB
+  BOOKS
+  PATENTS
+  PREPRINTS
+}
+
+enum InsightType {
+  TREND
+  GAP
+  CONTRADICTION
+  OPPORTUNITY
+  RISK
+}
+
+enum ImpactLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum JobType {
+  RESEARCH_QUERY
+  SOURCE_FETCH
+  CONTENT_ANALYSIS
+  CITATION_GENERATION
+  REPORT_GENERATION
+  NOTIFICATION
+  SCHEDULED_UPDATE
+}
+
+enum JobStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+  DELAYED
+  PAUSED
+}
+
+enum NotificationType {
+  RESEARCH_COMPLETED
+  RESEARCH_FAILED
+  NEW_INSIGHTS
+  SCHEDULED_UPDATE
+  SYSTEM_MESSAGE
+}
+
+enum LogLevel {
+  ERROR
+  WARN
+  INFO
+  DEBUG
+}

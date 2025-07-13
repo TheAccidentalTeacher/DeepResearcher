@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Research Assistant - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .main {
+            padding: 30px;
+        }
+        
+        .search-section {
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        #queryInput {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        #queryInput:focus {
+            border-color: #4f46e5;
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .results {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .result-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .sources {
+            margin-bottom: 20px;
+        }
+        
+        .source-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .source-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .source-type {
+            display: inline-block;
+            background: #e5e7eb;
+            color: #374151;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .insights {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .insight-item {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .insight-item:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .examples {
+            margin-top: 20px;
+        }
+        
+        .example-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .example-btn:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Deep Research Assistant</h1>
+            <p>Autonomous, AI-Powered Research Platform Demo</p>
+        </div>
+        
+        <div class="main">
+            <div class="search-section">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="queryInput" 
+                        placeholder="Enter your research query (e.g., 'quantum computing', 'ai safety')"
+                        value=""
+                    >
+                </div>
+                <button id="searchBtn" class="search-btn">Start Research</button>
+                
+                <div class="examples">
+                    <strong>Try these examples:</strong><br>
+                    <button class="example-btn" onclick="setQuery('quantum computing')">Quantum Computing</button>
+                    <button class="example-btn" onclick="setQuery('ai safety research')">AI Safety</button>
+                    <button class="example-btn" onclick="setQuery('renewable energy trends')">Renewable Energy</button>
+                    <button class="example-btn" onclick="setQuery('CRISPR gene editing')">CRISPR Technology</button>
+                </div>
+            </div>
+            
+            <div id="statusSection" class="hidden">
+                <div class="status">
+                    <div id="statusText">Processing your research query...</div>
+                </div>
+            </div>
+            
+            <div id="resultsSection" class="hidden">
+                <div class="results">
+                    <div class="result-header">📊 Research Results</div>
+                    
+                    <div class="summary">
+                        <h3>📝 Summary</h3>
+                        <p id="summaryText"></p>
+                    </div>
+                    
+                    <div class="sources">
+                        <h3>📚 Sources</h3>
+                        <div id="sourcesList"></div>
+                    </div>
+                    
+                    <div class="insights">
+                        <h3>💡 Key Insights</h3>
+                        <div id="insightsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        const queryInput = document.getElementById('queryInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const statusSection = document.getElementById('statusSection');
+        const statusText = document.getElementById('statusText');
+        const resultsSection = document.getElementById('resultsSection');
+        
+        function setQuery(query) {
+            queryInput.value = query;
+        }
+        
+        async function startResearch() {
+            const query = queryInput.value.trim();
+            if (!query) {
+                alert('Please enter a research query');
+                return;
+            }
+            
+            // Reset UI
+            resultsSection.classList.add('hidden');
+            statusSection.classList.remove('hidden');
+            statusText.innerHTML = '<div class="loading"></div> Processing your research query...';
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Researching...';
+            
+            try {
+                // Start research
+                const response = await fetch(`${API_BASE}/api/research`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query }),
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error.message);
+                }
+                
+                const sessionId = result.data.sessionId;
+                
+                // Poll for results
+                pollResults(sessionId);
+                
+            } catch (error) {
+                statusText.textContent = `Error: ${error.message}`;
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Start Research';
+            }
+        }
+        
+        async function pollResults(sessionId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/research/${sessionId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error('Failed to get results');
+                }
+                
+                const session = result.data;
+                
+                if (session.status === 'running') {
+                    statusText.innerHTML = `<div class="loading"></div> Research in progress... (${session.progress}%)`;
+                    setTimeout(() => pollResults(sessionId), 1000);
+                } else if (session.status === 'completed') {
+                    displayResults(session.results);
+                    statusSection.classList.add('hidden');
+                    searchBtn.disabled = false;
+                    searchBtn.textContent = 'Start Research';
+                }
+                
+            } catch (error) {
+                statusText.textContent = `Error: ${error.message}`;
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Start Research';
+            }
+        }
+        
+        function displayResults(results) {
+            // Display summary
+            document.getElementById('summaryText').textContent = results.summary;
+            
+            // Display sources
+            const sourcesList = document.getElementById('sourcesList');
+            sourcesList.innerHTML = '';
+            results.sources.forEach(source => {
+                const sourceDiv = document.createElement('div');
+                sourceDiv.className = 'source-item';
+                sourceDiv.innerHTML = `
+                    <div class="source-title">${source.title}</div>
+                    <span class="source-type">${source.type}</span>
+                `;
+                sourcesList.appendChild(sourceDiv);
+            });
+            
+            // Display insights
+            const insightsList = document.getElementById('insightsList');
+            insightsList.innerHTML = '';
+            results.insights.forEach(insight => {
+                const insightDiv = document.createElement('div');
+                insightDiv.className = 'insight-item';
+                insightDiv.textContent = insight;
+                insightsList.appendChild(insightDiv);
+            });
+            
+            resultsSection.classList.remove('hidden');
+        }
+        
+        // Event listeners
+        searchBtn.addEventListener('click', startResearch);
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startResearch();
+            }
+        });
+        
+        // Initial setup
+        queryInput.focus();
+    </script>
+</body>
+</html>
