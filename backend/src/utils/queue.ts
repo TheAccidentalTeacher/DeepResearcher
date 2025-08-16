@@ -1,7 +1,7 @@
 import { Queue, Worker, Job, QueueEvents } from 'bullmq';
 import { getRedisClient } from './redis';
 import logger from './logger';
-import { JobType, JobStatus } from '@deepresearcher/shared';
+import { JobType, JobStatus } from '../types/index';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';

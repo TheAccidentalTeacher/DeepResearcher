@@ -1,7 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
 import logger from '../utils/logger';
-import { ERROR_CODES } from '@deepresearcher/shared';
+import { ERROR_CODES } from '../constants/index';
 import { AuthenticatedRequest } from './auth';
 
 // General API rate limiter

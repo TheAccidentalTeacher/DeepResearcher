@@ -1,28 +1,25 @@
-# Railway-optimized Dockerfile for DeepResearcher
+# Railway Deployment Dockerfile
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY backend/package*.json ./backend/
+# Copy backend package files
+COPY backend/package*.json ./
 
 # Install dependencies
-RUN npm install --only=production
+RUN npm ci --only=production
 
-# Copy source code
-COPY . .
+# Copy backend source
+COPY backend/ ./
 
 # Build the application
 RUN npm run build
 
-# Expose port
-EXPOSE 3000
+# Generate Prisma client
+RUN npx prisma generate
 
-# Set environment
-ENV NODE_ENV=production
+# Expose port (Railway provides PORT env var)
+EXPOSE $PORT
 
 # Start the application
 CMD ["npm", "start"]

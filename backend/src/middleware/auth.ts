@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/database';
 import logger from '../utils/logger';
-import { ERROR_CODES } from '@deepresearcher/shared';
+import { ERROR_CODES } from '../constants/index';
 
 export interface AuthenticatedUser {
   id: string;

@@ -3,7 +3,7 @@ import { Server as HTTPServer } from 'http';
 import jwt from 'jsonwebtoken';
 import { prisma } from './database';
 import logger from './logger';
-import { SOCKET_EVENTS, SocketEvents } from '@deepresearcher/shared';
+import { SOCKET_EVENTS, SocketEvents } from '../constants/index';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;

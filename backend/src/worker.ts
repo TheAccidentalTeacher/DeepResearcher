@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Worker } from 'bullmq';
 import logger from './utils/logger';
 import { initializeRedis } from './utils/redis';
-import { JOB_QUEUES } from '@deepresearcher/shared';
+import { JOB_QUEUES } from './constants/index';
 
 // Load environment variables
 dotenv.config();

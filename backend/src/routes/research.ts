@@ -1,5 +1,6 @@
 import express from 'express';
 import { researchRateLimiter } from '../middleware/rateLimiter';
+import { ResearchStatus, ApiResponse } from '../types/index';
 
 const router = express.Router();
 

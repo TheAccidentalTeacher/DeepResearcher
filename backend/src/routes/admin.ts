@@ -1,7 +1,7 @@
 import express from 'express';
 import { rateLimiter } from '../middleware/rateLimiter';
 import { requireRole } from '../middleware/auth';
-import { UserRole } from '@deepresearcher/shared';
+import { UserRole } from '../types/index';
 
 const router = express.Router();
 
