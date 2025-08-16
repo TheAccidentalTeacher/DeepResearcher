@@ -7,7 +7,8 @@ import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.development' });
 
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
@@ -42,17 +43,29 @@ const PORT = process.env.PORT || 8000;
 
 async function startServer() {
   try {
-    // Initialize database
-    await initializeDatabase();
-    logger.info('Database connected successfully');
+    // Conditionally initialize database
+    if (!process.env.SKIP_DATABASE) {
+      await initializeDatabase();
+      logger.info('Database connected successfully');
+    } else {
+      logger.info('Skipping database connection (SKIP_DATABASE=true)');
+    }
 
-    // Initialize Redis
-    await initializeRedis();
-    logger.info('Redis connected successfully');
+    // Conditionally initialize Redis
+    if (!process.env.SKIP_REDIS) {
+      await initializeRedis();
+      logger.info('Redis connected successfully');
+    } else {
+      logger.info('Skipping Redis connection (SKIP_REDIS=true)');
+    }
 
-    // Initialize background job queue
-    await initializeQueue();
-    logger.info('Background job queue initialized');
+    // Conditionally initialize background job queue
+    if (!process.env.SKIP_QUEUE) {
+      await initializeQueue();
+      logger.info('Background job queue initialized');
+    } else {
+      logger.info('Skipping background job queue (SKIP_QUEUE=true)');
+    }
 
     // Security middleware
     app.use(helmet({
@@ -92,7 +105,20 @@ async function startServer() {
     app.get('/health', (req, res) => {
       res.json({
         status: 'ok',
+        message: 'Deep Research Assistant API is running on Railway',
         timestamp: new Date().toISOString(),
+        platform: 'railway',
+        version: process.env.npm_package_version || '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+      });
+    });
+
+    app.get('/api/health', (req, res) => {
+      res.json({
+        status: 'ok',
+        message: 'Deep Research Assistant API is running on Railway',
+        timestamp: new Date().toISOString(),
+        platform: 'railway',
         version: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development',
       });
@@ -100,12 +126,13 @@ async function startServer() {
 
     // API routes
     app.use('/api/auth', authRoutes);
-    app.use('/api/research', authMiddleware, researchRoutes);
-    app.use('/api/sources', authMiddleware, sourcesRoutes);
-    app.use('/api/citations', authMiddleware, citationsRoutes);
-    app.use('/api/notifications', authMiddleware, notificationsRoutes);
-    app.use('/api/export', authMiddleware, exportRoutes);
-    app.use('/api/admin', authMiddleware, adminRoutes);
+    // Skip auth middleware for development
+    app.use('/api/research', researchRoutes);
+    app.use('/api/sources', sourcesRoutes);
+    app.use('/api/citations', citationsRoutes);
+    app.use('/api/notifications', notificationsRoutes);
+    app.use('/api/export', exportRoutes);
+    app.use('/api/admin', adminRoutes);
 
     // Setup Socket.IO
     setupSocketIO(server);

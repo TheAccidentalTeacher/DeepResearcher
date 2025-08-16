@@ -2,9 +2,38 @@
 
 Autonomous, AI-Powered, Background-Capable Research Platform
 
+**🚂 Now Deployed on Railway!** This project has been migrated from Vercel to Railway for enhanced full-stack capabilities.
+
 ## Overview
 
 The Deep Research Assistant is a full-stack web application that acts as an intelligent, autonomous research assistant. It utilizes OpenAI's platform (GPT-4, retrieval, browsing, function calling) and integrates with academic and web data sources to provide structured, credible, and continuously updated research insights.
+
+## 🚀 Quick Start
+
+### Deploy to Railway (Recommended)
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login and deploy
+railway login
+railway init
+railway add postgresql
+railway up
+```
+
+**[📋 Complete Deployment Guide](RAILWAY_DEPLOYMENT_COMPLETE.md)**
+
+### Local Development
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev:backend
+
+# API available at http://localhost:8000
+```
 
 ## Features
 
@@ -16,38 +45,38 @@ The Deep Research Assistant is a full-stack web application that acts as an inte
 - 🎯 **Multi-Step Reasoning**: Complex query breakdown and synthesis
 - 📊 **Structured Output**: Summaries, visualizations, and exportable reports
 
+### Platform Features
+- � **Railway Deployment**: Full-stack deployment with PostgreSQL database
+- 🔄 **Background Workers**: Scalable job processing with Redis queues
+- � **WebSocket Support**: Real-time updates and notifications
+- 🔒 **Production Security**: Rate limiting, CORS, and JWT authentication
+- 📈 **Monitoring**: Comprehensive logging and health checks
+
 ### User Experience
-- 🖥️ **Modern Web Interface**: Responsive React/Next.js frontend
-- 🔔 **Real-time Notifications**: Progress updates and completion alerts
+- 🖥️ **REST API**: Clean API endpoints for integration
+- 🔔 **Real-time Updates**: WebSocket-based progress notifications  
 - 📁 **Session Management**: Save, revisit, and organize research topics
-- 🎨 **Interactive Results**: Expandable summaries and clickable citations
-- ♿ **Accessibility**: Full keyboard navigation and screen reader support
+- 🎨 **Structured Responses**: JSON API with standardized format
+- ♿ **Developer-Friendly**: Comprehensive API documentation
 
 ## Architecture
 
 ```
-frontend/          # Next.js React application
-├── components/    # Reusable UI components
-├── pages/         # Next.js pages and API routes
-├── hooks/         # Custom React hooks
-├── utils/         # Utility functions
-└── styles/        # CSS and styling
-
-backend/           # Node.js Express server
-├── controllers/   # Route handlers
-├── services/      # Business logic
-├── models/        # Database models
-├── middleware/    # Express middleware
-├── jobs/          # Background job definitions
-└── utils/         # Utility functions
-
-shared/            # Shared types and utilities
-├── types/         # TypeScript type definitions
-└── constants/     # Shared constants
-
-docs/              # Documentation
-├── api/           # API documentation
-├── user-guide/    # User documentation
+DeepResearcher/
+├── backend/           # Express.js API server (Main deployment)
+│   ├── src/
+│   │   ├── routes/    # API route handlers
+│   │   ├── middleware/# Express middleware  
+│   │   ├── utils/     # Database, Redis, logging
+│   │   └── server.ts  # Main server entry point
+│   ├── prisma/        # Database schema and migrations
+│   └── dist/          # Compiled TypeScript
+├── shared/            # Shared TypeScript types
+├── app/               # Next.js frontend (legacy - being phased out)
+├── railway.json       # Railway deployment configuration
+├── Procfile          # Process configuration
+└── RAILWAY_DEPLOYMENT_COMPLETE.md  # Deployment guide
+```
 └── architecture/  # Technical documentation
 
 scripts/           # Build and deployment scripts

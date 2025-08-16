@@ -1,0 +1,39 @@
+# DEPRECATED - Vercel Configuration
+
+This project has been migrated from Vercel to Railway deployment.
+
+**This file is deprecated and can be removed.**
+
+For Railway deployment, see:
+- `railway.json` for deployment configuration  
+- `RAILWAY_README.md` for deployment instructions
+- `DEPLOYMENT_GUIDE.md` for complete guide
+
+---
+
+## Original Vercel Configuration
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app/**",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/app/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
